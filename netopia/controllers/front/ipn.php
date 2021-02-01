@@ -38,7 +38,12 @@ class NetopiaIpnModuleFrontController extends ModuleFrontController
             {
                 if(isset($_POST['env_key']) && isset($_POST['data']))
                     {
-                        $privateKeyFilePath = _PS_MODULE_DIR_ .'netopia/certificates/sandbox.YN8Q-RH4J-39C1-FPAG-2P8Aprivate.key';
+                        $privateKey  = (Configuration::get('NETOPIA_LIVE_MODE')) ? Configuration::get('NETOPIA_LIVE_PRI_KEY') : Configuration::get('NETOPIA_SAND_PRI_KEY');
+                        $privateKeyFilePath = _PS_MODULE_DIR_ .'netopia/certificates/'.$privateKey;
+                        if(!file_exists($privateKeyFilePath)) {
+                            throw new Exception("{$privateKey}.php was not found");
+                        }
+
                         try
                         {
                             $objPmReq = Mobilpay_Payment_Request_Abstract::factoryFromEncrypted($_POST['env_key'], $_POST['data'], $privateKeyFilePath);
