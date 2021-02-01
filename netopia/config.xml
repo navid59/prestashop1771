@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>netopia</name>
+	<displayName><![CDATA[NETOPIA Payments]]></displayName>
+	<version><![CDATA[0.0.1]]></version>
+	<description><![CDATA[NETOPIA Payments îți pune la dispoziție cele mai performante, competitive și inovative soluții de încasare a tranzacțiilor online. Ușor de integrat cu Prestashop.]]></description>
+	<author><![CDATA[NETOPIA Payments]]></author>
+	<tab><![CDATA[payments_gateways]]></tab>
+	<is_configurable>1</is_configurable>
+	<need_instance>1</need_instance>
+</module>
