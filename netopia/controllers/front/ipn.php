@@ -49,6 +49,7 @@ class NetopiaIpnModuleFrontController extends ModuleFrontController
                             $objPmReq = Mobilpay_Payment_Request_Abstract::factoryFromEncrypted($_POST['env_key'], $_POST['data'], $privateKeyFilePath);
                             $rrn = $objPmReq->objPmNotify->rrn;
                             if ($objPmReq->objPmNotify->errorCode == 0) {
+                                $this->setLog($objPmReq->objPmNotify->action); // LOGURI
                                 switch($objPmReq->objPmNotify->action)
                                 {
                                     case 'confirmed':
@@ -100,6 +101,13 @@ class NetopiaIpnModuleFrontController extends ModuleFrontController
                                  * Update Order Status - End
                                  * */
                             }else{
+                                $this->setLog($objPmReq->objPmNotify->errorMessage); // LOGURI In failed Payment Online
+                                /**
+                                 * Add History , when Error exist
+                                 */
+                                // $history           = new OrderHistory();
+                                // $history->id_order = $objPmReq->orderId;
+                                // $history->changeIdOrderState($ntpStatus, (int)($history->id_order));
                                 //update DB, SET status = "rejected"
                                 $errorMessage = $objPmReq->objPmNotify->errorMessage;
                             }
@@ -141,6 +149,16 @@ class NetopiaIpnModuleFrontController extends ModuleFrontController
 
             return $this->setTemplate('module:netopia/views/templates/front/ipn.tpl');
             ////////////////////////////////////////////////////////////////////////////////////////
+        }
+    }
+
+    public function setLog($obj){
+        try {
+            $log_file = "./netopia-errors.log";       
+            $str = serialize($obj);
+            error_log("[".date("F j, Y, g:i a")."] ".$str.PHP_EOL, 3, $log_file);
+        } catch (Exception $e) {
+            print $e->getMessage();
         }
     }
 }
