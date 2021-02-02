@@ -67,11 +67,11 @@ class NetopiaIpnModuleFrontController extends ModuleFrontController
                                         $ntpStatus = onBackorderNotPaid;
                                         $errorMessage = $objPmReq->objPmNotify->errorMessage;
                                         break;
-                                    case 'paid':
-                                        //update DB, SET status = "open/preauthorized"
-                                        $ntpStatus = onBackorderPaid;
-                                        $errorMessage = $objPmReq->objPmNotify->errorMessage;
-                                        break;
+                                    // case 'paid':
+                                    //     //update DB, SET status = "open/preauthorized"
+                                    //     $ntpStatus = onBackorderPaid;
+                                    //     $errorMessage = $objPmReq->objPmNotify->errorMessage;
+                                    //     break;
                                     case 'canceled':
                                         //update DB, SET status = "canceled"
                                         $ntpStatus = canceled;
@@ -90,26 +90,41 @@ class NetopiaIpnModuleFrontController extends ModuleFrontController
                                         break;
                                 }
                                 /*
-                                 * Update Order Status - Start
+                                 * Update Order Status
                                  * */
-
                                 $history           = new OrderHistory();
                                 $history->id_order = $objPmReq->orderId;
                                 $history->changeIdOrderState($ntpStatus, (int)($history->id_order));
-
-                                /*
-                                 * Update Order Status - End
-                                 * */
                             }else{
-                                $this->setLog($objPmReq->objPmNotify->errorMessage); // LOGURI In failed Payment Online
-                                /**
-                                 * Add History , when Error exist
-                                 */
-                                // $history           = new OrderHistory();
-                                // $history->id_order = $objPmReq->orderId;
-                                // $history->changeIdOrderState($ntpStatus, (int)($history->id_order));
-                                //update DB, SET status = "rejected"
-                                $errorMessage = $objPmReq->objPmNotify->errorMessage;
+                                if( $objPmReq->objPmNotify->action == "paid") {
+                                    switch ($objPmReq->objPmNotify->errorMessage) {
+                                        case 'Cardul nu permite plata online.':
+                                        case 'Cod CVV2/CCV incorect':
+                                        case 'Fonduri insuficiente.':
+                                        case 'Card expirat':
+                                        case ' ':
+                                            $ntpStatus = paymentError;
+                                            $errorMessage = $objPmReq->objPmNotify->errorMessage;
+                                        break;
+                                        default :
+                                            $this->setLog('!!!!!!!!!!!!!---------vvvv----------!!!!!!!!!!!!');                                                 // LOGURI 
+                                            $this->setLog('Opps, Action is "paid" and message is: '.$objPmReq->objPmNotify->errorMessage.'BUT!!!');            // LOGURI 
+                                            $this->setLog('!!!!!!!!!!!!!---------^^^^----------!!!!!!!!!!!!');                                                 // LOGURI  
+                                    }
+                                    $this->setLog($objPmReq->objPmNotify->errorMessage);    // LOGURI 
+                                    
+                                    /*
+                                    * Update Order Status in Order un success situations
+                                    * */
+                                    $history           = new OrderHistory();
+                                    $history->id_order = $objPmReq->orderId;
+                                    $history->changeIdOrderState($ntpStatus, (int)($history->id_order));
+                                } else {
+                                    $this->setLog('!**------------vvvvv------------**!');                                                         // LOGURI 
+                                    $this->setLog('Opps, Action is "NOT PAID!!!" , and the ACTION is :'.$objPmReq->objPmNotify->action);          // LOGURI 
+                                    $this->setLog('Action is "NOT PAID!!!", and MESSAGE is :'.$objPmReq->objPmNotify->errorMessage);              // LOGURI 
+                                    $this->setLog('!**------------^^^^^------------**!');                                                         // LOGURI 
+                                }
                             }
                         }catch (Exception $e){
                             $errorType 		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_TEMPORARY;
