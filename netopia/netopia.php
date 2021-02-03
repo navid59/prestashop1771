@@ -497,7 +497,7 @@ class Netopia extends PaymentModule
     public function hookActionPaymentConfirmation()
     {
         /* Place your code here. */
-        echo "ActionPaymentConfirmation";
+        //echo "ActionPaymentConfirmation";
     }
 
     public function hookDisplayPayment()

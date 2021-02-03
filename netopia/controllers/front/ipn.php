@@ -20,6 +20,10 @@ define('onBackorderNotPaid', 12);
 
 class NetopiaIpnModuleFrontController extends ModuleFrontController
 {
+    public $errorCode;
+    public $errorType;
+    public $errorMessage;
+
     public function postProcess()
     {
         /*
@@ -28,9 +32,9 @@ class NetopiaIpnModuleFrontController extends ModuleFrontController
         if (Tools::getValue('action') == 'error') {
             //return $this->displayError('An error occurred while trying to redirect the customer');
         } else {
-            $errorCode 		= 0;
-            $errorType		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_NONE;
-            $errorMessage	= '';
+            $this->errorCode 		= 0;
+            $this->errorType		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_NONE;
+            $this->errorMessage	= '';
 
             if (strcasecmp($_SERVER['REQUEST_METHOD'], 'post') == 0)
             {
@@ -47,23 +51,23 @@ class NetopiaIpnModuleFrontController extends ModuleFrontController
                             $objPmReq = Mobilpay_Payment_Request_Abstract::factoryFromEncrypted($_POST['env_key'], $_POST['data'], $privateKeyFilePath);
                             $rrn = $objPmReq->objPmNotify->rrn;
                             if ($objPmReq->objPmNotify->errorCode == 0) {
-                                $this->setLog($objPmReq->objPmNotify->action); // LOGURI
+                                $this->setLog(array('#ACTION - ', $objPmReq->objPmNotify->action)); // LOGURI
                                 switch($objPmReq->objPmNotify->action)
                                 {
                                     case 'confirmed':
                                         //update DB, SET status = "confirmed/captured"
                                         $ntpStatus = confirmed;
-                                        $errorMessage = $objPmReq->objPmNotify->errorMessage;
+                                        $this->errorMessage = $objPmReq->objPmNotify->errorMessage;
                                         break;
                                     case 'confirmed_pending':
                                         //update DB, SET status = "pending"
                                         $ntpStatus = processing;
-                                        $errorMessage = $objPmReq->objPmNotify->errorMessage;
+                                        $this->errorMessage = $objPmReq->objPmNotify->errorMessage;
                                         break;
                                     case 'paid_pending':
                                         //update DB, SET status = "pending2"
                                         $ntpStatus = onBackorderNotPaid;
-                                        $errorMessage = $objPmReq->objPmNotify->errorMessage;
+                                        $this->errorMessage = $objPmReq->objPmNotify->errorMessage;
                                         break;
                                     // case 'paid':
                                     //     //update DB, SET status = "open/preauthorized"
@@ -73,18 +77,18 @@ class NetopiaIpnModuleFrontController extends ModuleFrontController
                                     case 'canceled':
                                         //update DB, SET status = "canceled"
                                         $ntpStatus = canceled;
-                                        $errorMessage = $objPmReq->objPmNotify->errorMessage;
+                                        $this->errorMessage = $objPmReq->objPmNotify->errorMessage;
                                         break;
                                     case 'credit':
                                         //update DB, SET status = "refunded"
                                         $ntpStatus = refunded;
-                                        $errorMessage = $objPmReq->objPmNotify->errorMessage;
+                                        $this->errorMessage = $objPmReq->objPmNotify->errorMessage;
                                         break;
                                     default:
                                         $ntpStatus = paymentError;
-                                        $errorType		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_PERMANENT;
-                                        $errorCode 		= Mobilpay_Payment_Request_Abstract::ERROR_CONFIRM_INVALID_ACTION;
-                                        $errorMessage 	= 'mobilpay_refference_action paramaters is invalid';
+                                        $this->errorType		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_PERMANENT;
+                                        $this->errorCode 		= Mobilpay_Payment_Request_Abstract::ERROR_CONFIRM_INVALID_ACTION;
+                                        $this->errorMessage 	= 'mobilpay_refference_action paramaters is invalid';
                                         break;
                                 }
                                 /*
@@ -102,12 +106,10 @@ class NetopiaIpnModuleFrontController extends ModuleFrontController
                                         case 'Card expirat':
                                         case ' ':
                                             $ntpStatus = paymentError;
-                                            $errorMessage = $objPmReq->objPmNotify->errorMessage;
+                                            $this->errorMessage = $objPmReq->objPmNotify->errorMessage;
                                         break;
                                         default :
-                                            $this->setLog('!!!!!!!!!!!!!---------vvvv----------!!!!!!!!!!!!');                                                 // LOGURI 
-                                            $this->setLog('Opps, Action is "paid" and message is: '.$objPmReq->objPmNotify->errorMessage.'BUT!!!');            // LOGURI 
-                                            $this->setLog('!!!!!!!!!!!!!---------^^^^----------!!!!!!!!!!!!');                                                 // LOGURI  
+                                            $this->setLog('Opps, Action is "paid" and message is: '.$objPmReq->objPmNotify->errorMessage.'BUT...!!!');    // LOGURI  
                                     }
                                     $this->setLog($objPmReq->objPmNotify->errorMessage);    // LOGURI 
                                     
@@ -118,50 +120,57 @@ class NetopiaIpnModuleFrontController extends ModuleFrontController
                                     $history->id_order = $objPmReq->orderId;
                                     $history->changeIdOrderState($ntpStatus, (int)($history->id_order));
                                 } else {
-                                    $this->setLog('!**------------vvvvv------------**!');                                                         // LOGURI 
                                     $this->setLog('Opps, Action is "NOT PAID!!!" , and the ACTION is :'.$objPmReq->objPmNotify->action);          // LOGURI 
                                     $this->setLog('Action is "NOT PAID!!!", and MESSAGE is :'.$objPmReq->objPmNotify->errorMessage);              // LOGURI 
-                                    $this->setLog('!**------------^^^^^------------**!');                                                         // LOGURI 
                                 }
                             }
                         }catch (Exception $e){
-                            $errorType 		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_TEMPORARY;
-                            $errorCode		= $e->getCode();
-                            $errorMessage 	= $e->getMessage();
+                            $this->errorType 		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_TEMPORARY;
+                            $this->errorCode		= $e->getCode();
+                            $this->errorMessage 	= $e->getMessage();
                         }
                     }
                 else{
-                    $errorType 		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_PERMANENT;
-                    $errorCode		= Mobilpay_Payment_Request_Abstract::ERROR_CONFIRM_INVALID_POST_PARAMETERS;
-                    $errorMessage 	= 'mobilpay.ro posted invalid parameters';
+                    $this->errorType 		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_PERMANENT;
+                    $this->errorCode		= Mobilpay_Payment_Request_Abstract::ERROR_CONFIRM_INVALID_POST_PARAMETERS;
+                    $this->errorMessage 	= 'mobilpay.ro posted invalid parameters';
                 }
             }else {
-                $errorType 		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_PERMANENT;
-                $errorCode		= Mobilpay_Payment_Request_Abstract::ERROR_CONFIRM_INVALID_POST_METHOD;
-                $errorMessage 	= 'invalid request metod for payment confirmation';
+                $this->errorType 		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_PERMANENT;
+                $this->errorCode		= Mobilpay_Payment_Request_Abstract::ERROR_CONFIRM_INVALID_POST_METHOD;
+                $this->errorMessage 	= 'invalid request metod for payment confirmation';
             }
 
+            /**
+             * The following method will generate thx XML inside the Controller
+             */
             header('Content-type: application/xml');
             echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
-            if($errorCode == 0)
+            if($this->errorCode == 0)
             {
-                echo "<crc>{$errorMessage}</crc>";
+                echo "<crc>{$this->errorMessage}</crc>";
             }
             else
             {
-                echo "<crc error_type=\"{$errorType}\" error_code=\"{$errorCode}\">{$errorMessage}</crc>";
+                echo "<crc error_type=\"{$this->errorType}\" error_code=\"{$this->errorCode}\">{$this->errorMessage}</crc>";
             }
 
-            ////////////////////////////////////////////////////////////////////////////////////////
-            $this->context->smarty->assign(array(
-                'errorMessage' => $errorMessage,
-                'errorType' => $errorType ? $errorType : '',
-                'errorCode' => $errorCode ? $errorCode : '',
-                'secure_key' => Context::getContext()->customer->secure_key,
-            ));
+            /** 
+             * The following method by geting help  from CONTEXT
+             * Can be used to generate XML in "ipn.tpl"
+            */
+            // $this->context->smarty->assign(array(
+            // 'errorMessage' => $this->errorMessage,
+            // 'errorType' => $this->errorType ? $this->errorType : '',
+            // 'errorCode' => $this->errorCode ? $this->errorCode : '',
+            // 'secure_key' => Context::getContext()->customer->secure_key,
+            // ));
 
-            return $this->setTemplate('module:netopia/views/templates/front/ipn.tpl');
-            ////////////////////////////////////////////////////////////////////////////////////////
+            /**
+             *  get the templet and send parameters define in CONTEXT
+             *  curently ipn.tpl is empty
+             */
+            return $this->setTemplate('module:netopia/views/templates/front/ipn.tpl'); 
         }
     }
 
@@ -169,7 +178,7 @@ class NetopiaIpnModuleFrontController extends ModuleFrontController
         try {
             $log_file = "./netopia-errors.log";       
             $str = serialize($obj);
-            error_log("[".date("F j, Y, g:i a")."] ".$str.PHP_EOL, 3, $log_file);
+            error_log("[".date("F j, Y, g:i:s a")."] ".$str.PHP_EOL, 3, $log_file);
         } catch (Exception $e) {
             print $e->getMessage();
         }
