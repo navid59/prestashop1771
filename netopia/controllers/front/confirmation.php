@@ -23,6 +23,16 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+
+// Merging Order Status of Presta
+define('confirmed', 2);
+define('processing', 3);
+define('canceled', 6);
+define('paymentError', 8);
+// define('refunded', 7);
+// define('onBackorderPaid', 9);
+// define('onBackorderNotPaid', 12);
+
 class NetopiaConfirmationModuleFrontController extends ModuleFrontController
 {
     public function postProcess()
@@ -54,13 +64,43 @@ class NetopiaConfirmationModuleFrontController extends ModuleFrontController
          * If the order has been validated we try to retrieve it
          */
         $order_id = Order::getOrderByCartId((int) $cart->id);
+       /**
+        *  Get Order as Object 
+        */
+        $order = new Order((int)$order_id);
+        $orderCurrentState = $order->current_state;
 
         if ($order_id && ($secure_key == $customer->secure_key)) {
             /**
              * The order has been placed so we redirect the customer on the confirmation page.
              */
-            $module_id = $this->module->id;
-            Tools::redirect('index.php?controller=order-confirmation&id_cart=' . $cart_id . '&id_module=' . $module_id . '&id_order=' . $order_id . '&key=' . $secure_key);
+            switch($orderCurrentState) {
+                case 3: // Untifroud
+                    $this->errors[] = $this->module->l('Thank you for the shoping.');
+                    $this->errors[] = $this->module->l('Your, order need to be reviewing!!');
+                    $this->context->smarty->assign([
+                        'errors' => $this->errors
+                    ]);
+                    return $this->setTemplate('module:netopia/views/templates/front/antifrauda.tpl');
+                break;
+                case 6: // canceled Order
+                    $this->errors[] = $this->module->l('The order is canceled.');
+                    $this->context->smarty->assign([
+                        'errors' => $this->errors
+                    ]);
+                    return $this->setTemplate('module:netopia/views/templates/front/cancel.tpl');
+                break;
+                case 8: // Error payments
+                    $this->errors[] = $this->module->l('An error is happening!!!!');
+                    $this->context->smarty->assign([
+                        'errors' => $this->errors
+                    ]);
+                    return $this->setTemplate('module:netopia/views/templates/front/error.tpl');
+                break;
+                default : 
+                $module_id = $this->module->id;
+                Tools::redirect('index.php?controller=order-confirmation&id_cart=' . $cart_id . '&id_module=' . $module_id . '&id_order=' . $order_id . '&key=' . $secure_key);
+            }
         } else {
             /*
              * An error occured and is shown on a new page.

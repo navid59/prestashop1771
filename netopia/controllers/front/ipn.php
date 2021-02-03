@@ -17,8 +17,6 @@ define('paymentError', 8);
 define('refunded', 7);
 define('onBackorderPaid', 9);
 define('onBackorderNotPaid', 12);
-//define('NTP_PS_OS_PENDING', 14);
-//define('NTP_PS_OS_PROCESSING', 15);
 
 class NetopiaIpnModuleFrontController extends ModuleFrontController
 {
