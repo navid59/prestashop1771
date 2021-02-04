@@ -69,6 +69,8 @@ class NetopiaConfirmationModuleFrontController extends ModuleFrontController
         */
         $order = new Order((int)$order_id);
         $orderCurrentState = $order->current_state;
+        // echo "<pre>";
+        // die(print_r($order));
 
         if ($order_id && ($secure_key == $customer->secure_key)) {
             /**
@@ -78,6 +80,9 @@ class NetopiaConfirmationModuleFrontController extends ModuleFrontController
                 case 3: // Untifroud
                     $this->errors[] = $this->module->l('Thank you for the shoping.');
                     $this->errors[] = $this->module->l('Your, order need to be reviewing!!');
+                    $this->errors[] = $this->module->l($order->reference);
+                    $this->errors[] = $this->module->l($order->total_paid);
+                    $this->errors[] = $this->module->l('We will let you know regarding the proccessing of your order');
                     $this->context->smarty->assign([
                         'errors' => $this->errors
                     ]);

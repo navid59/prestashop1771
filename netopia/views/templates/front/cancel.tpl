@@ -25,12 +25,14 @@
 {extends "$layout"}
 
 {block name="content"}
-<div>
-{*	<h3>{l s='An error occurred' mod='netopia'}:</h3>*}
-{*	<ul class="alert alert-danger">*}
-{*		{foreach from=$errors item='error'}*}
-{*			<li>{$error|escape:'htmlall':'UTF-8'}.</li>*}
-{*		{/foreach}*}
-{*	</ul>*}
+<div class="card-block">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-warning" role="alert">
+                <h4 id="netopiaCancelTitle" class="alert-heading">{$errors[0]|escape:'htmlall':'UTF-8'}</h4>
+                <h5 id="netopiaCancelSubTitle" class="alert-heading">{$errors[1]|escape:'htmlall':'UTF-8'}</h5>
+            </div>
+        </div>
+    </div>
 </div>
 {/block}

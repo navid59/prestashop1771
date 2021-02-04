@@ -23,20 +23,18 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 {extends "$layout"}
-
 {block name="content"}
 <div class="card-block">
     <div class="row">
         <div class="col-md-12">
-{*         {foreach from=$errors item='error'}*}
-{*            <h3 class="h1 card-title">*}
-{*            <i class="material-icons rtl-no-flip done"></i>{$error|escape:'htmlall':'UTF-8'}*}
-{*            </h3>*}
-{*         {/foreach}*}
-
-{*        {foreach from=$errors item='error'}*}
-{*			<p>{$error|escape:'htmlall':'UTF-8'}.</p>*}
-{*        {/foreach}*}
+        <div class="alert alert-success" role="alert">
+        <h4 id="netopiaFeedbackTitle" class="alert-heading">{$errors[0]|escape:'htmlall':'UTF-8'}</h4>
+        <h5 id="netopiaFeedbackSubTitle" class="alert-heading">{$errors[1]|escape:'htmlall':'UTF-8'}</h5>
+        <p id="netopiaFeedbackReference">Your, reference ID is : <strong>{$errors[2]}.<strong></p>
+        <p id="netopiaFeedbackTotalPaid">Total payment is : <strong>{$errors[3]}<strong>.</p>
+        <hr>
+        <p id="netopiaFeedbackExteraInfo" class="mb-0">{$errors[4]}.</p>
+        </div>
         </div>
     </div>
 </div>
