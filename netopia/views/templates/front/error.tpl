@@ -23,14 +23,17 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 {extends "$layout"}
-
 {block name="content"}
-<div>
-{*	<h3>{l s='An error occurred' mod='netopia'}:</h3>*}
-{*	<ul class="alert alert-danger">*}
-{*		{foreach from=$errors item='error'}*}
-{*			<li>{$error|escape:'htmlall':'UTF-8'}.</li>*}
-{*		{/foreach}*}
-{*	</ul>*}
+<div class="card-block">
+    <div class="row">
+        <div class="col-md-12">
+        <div class="alert alert-danger" role="alert">
+        <h4 id="netopiaFeedbackTitle" class="alert-heading">{$errors[0]|escape:'htmlall':'UTF-8'}</h4>
+        <p id="netopiaFeedbackReference">ID referinta comanda : <strong>{$errors[1]}.<strong></p>
+        <hr>
+        <p id="netopiaFeedbackExteraInfo" class="mb-0">{$errors[2]}.</p>
+        </div>
+        </div>
+    </div>
 </div>
 {/block}

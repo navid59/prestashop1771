@@ -78,25 +78,27 @@ class NetopiaConfirmationModuleFrontController extends ModuleFrontController
              */
             switch($orderCurrentState) {
                 case 3: // Untifroud
-                    $this->errors[] = $this->module->l('Thank you for the shoping.');
-                    $this->errors[] = $this->module->l('Your, order need to be reviewing!!');
+                    $this->errors[] = $this->module->l('Iti multumim pentru comanda.');
+                    $this->errors[] = $this->module->l('Plata ta este in curs de procesare.');
                     $this->errors[] = $this->module->l($order->reference);
                     $this->errors[] = $this->module->l($order->total_paid);
-                    $this->errors[] = $this->module->l('We will let you know regarding the proccessing of your order');
+                    $this->errors[] = $this->module->l('Pentru orice alte detalii te rugam sa ne contactezi');
                     $this->context->smarty->assign([
                         'errors' => $this->errors
                     ]);
                     return $this->setTemplate('module:netopia/views/templates/front/antifrauda.tpl');
                 break;
                 case 6: // canceled Order
-                    $this->errors[] = $this->module->l('The order is canceled.');
+                    $this->errors[] = $this->module->l('Comanda este anulata.');
                     $this->context->smarty->assign([
                         'errors' => $this->errors
                     ]);
                     return $this->setTemplate('module:netopia/views/templates/front/cancel.tpl');
                 break;
                 case 8: // Error payments
-                    $this->errors[] = $this->module->l('An error is happening!!!!');
+                    $this->errors[] = $this->module->l('Plata a fost respinsa.');
+                    $this->errors[] = $this->module->l($order->reference);
+                    $this->errors[] = $this->module->l('Pentru orice alte detalii te rugam sa ne contactezi');
                     $this->context->smarty->assign([
                         'errors' => $this->errors
                     ]);

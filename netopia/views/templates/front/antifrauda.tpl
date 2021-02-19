@@ -30,8 +30,8 @@
         <div class="alert alert-success" role="alert">
         <h4 id="netopiaFeedbackTitle" class="alert-heading">{$errors[0]|escape:'htmlall':'UTF-8'}</h4>
         <h5 id="netopiaFeedbackSubTitle" class="alert-heading">{$errors[1]|escape:'htmlall':'UTF-8'}</h5>
-        <p id="netopiaFeedbackReference">Your, reference ID is : <strong>{$errors[2]}.<strong></p>
-        <p id="netopiaFeedbackTotalPaid">Total payment is : <strong>{$errors[3]}<strong>.</p>
+        <p id="netopiaFeedbackReference">ID referinta comanda : <strong>{$errors[2]}.<strong></p>
+        <p id="netopiaFeedbackTotalPaid">Plata totala : <strong>{$errors[3]}<strong>.</p>
         <hr>
         <p id="netopiaFeedbackExteraInfo" class="mb-0">{$errors[4]}.</p>
         </div>
