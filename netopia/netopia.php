@@ -415,6 +415,11 @@ class Netopia extends PaymentModule
 
     public function hookActionPaymentCCAdd()
     {
+        // echo "<pre>";
+        // echo print_r($this->context->cart->id);
+        // echo "</pre>";
+        // echo "<hr>";
+
         /* Place your code here. */
         $cart_id = $this->context->cart->id;
         $customer_id = $this->context->customer->id;
@@ -444,7 +449,8 @@ class Netopia extends PaymentModule
         try {
             $objPmReqCard = new Mobilpay_Payment_Request_Card();
             $objPmReqCard->signature = Configuration::get('NETOPIA_SIGNATURE', null);
-            $objPmReqCard->orderId = Order::getOrderByCartId((int)($cart_id));
+            $objPmReqCard->orderId = Order::getOrderByCartId((int)($cart_id));  // Get Real Order ID by Using Card_id
+            //$objPmReqCard->orderId = (string)($cart_id)."#".time();  // Generate order id by Card_id + "#" + TIME 
             $order = new Order($objPmReqCard->orderId);
 
             $objPmReqCard->confirmUrl = $this->getUrl().htmlentities('?fc=module&module=netopia&controller=ipn');

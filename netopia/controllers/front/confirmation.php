@@ -96,6 +96,14 @@ class NetopiaConfirmationModuleFrontController extends ModuleFrontController
                     return $this->setTemplate('module:netopia/views/templates/front/cancel.tpl');
                 break;
                 case 8: // Error payments
+                    $this->context->cart = new Cart($order->id_cart); // Generate New Order
+                    $this->context->cookie->id_cart = $order->id_cart; // Add same Items 
+
+                    /** */
+                    $sql = "UPDATE "._DB_PREFIX_."orders SET `id_cart` = '0' WHERE `reference`='".$order->reference."'";
+                    Db::getInstance()->execute($sql);
+                    /** */
+                    
                     $this->errors[] = $this->module->l('Plata a fost respinsa.');
                     $this->errors[] = $this->module->l($order->reference);
                     $this->errors[] = $this->module->l('Pentru orice alte detalii te rugam sa ne contactezi');
@@ -103,6 +111,23 @@ class NetopiaConfirmationModuleFrontController extends ModuleFrontController
                         'errors' => $this->errors
                     ]);
                     return $this->setTemplate('module:netopia/views/templates/front/error.tpl');
+                break;
+                case 12: // Un paid 
+                    /** 
+                    * When End user come to Return Page without payment 
+                    */
+                    // $this->context->cart = new Cart($order->id_cart); // Generate New Order
+                    // $this->context->cookie->id_cart = $order->id_cart; // Add same Items 
+                    // $sql = "UPDATE "._DB_PREFIX_."orders SET `id_cart` = '0' WHERE `reference`='".$order->reference."'";
+                    // Db::getInstance()->execute($sql);
+                    /** */
+
+                    $this->errors[] = $this->module->l('Ooops, After the payment , you will arrive in this page, don\'t be in hary ;-)');
+                    $this->errors[] = $this->module->l('if by mistake you arrive here, contact the website Admin');
+                    $this->context->smarty->assign([
+                        'errors' => $this->errors
+                    ]);
+                    return $this->setTemplate('module:netopia/views/templates/front/smooth.tpl');
                 break;
                 default : 
                 $module_id = $this->module->id;

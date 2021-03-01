@@ -76,8 +76,13 @@ class NetopiaValidationModuleFrontController extends ModuleFrontController
         $module_name = $this->module->displayName;
         $currency_id = (int) Context::getContext()->currency->id;
 
-//        return $this->module->validateOrder($cart_id, $payment_status, $amount, $module_name, $message, array(), $currency_id, false, $secure_key);
+        /**
+         * Temporary Commented
+         * The following method will register the Order
+         * the Card/Cos will transfer to Order
+         */
         $this->module->validateOrder($cart_id, $payment_status, $amount, $module_name, $message, array(), $currency_id, false, $secure_key);
+
         Hook::exec('actionPaymentCCAdd', array('paymentCC' => $this));
         $this->context->smarty->assign([
             'params' => $_REQUEST,

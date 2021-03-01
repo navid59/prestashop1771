@@ -45,6 +45,8 @@ class NetopiaIpnModuleFrontController extends ModuleFrontController
                         if(!file_exists($privateKeyFilePath)) {
                             throw new Exception("{$privateKey}.php was not found");
                         }
+                        // Test Manual to add order on IPN
+                        //$this->module->validateOrder(10000, 'NTP_PS_OS_PENDING', 10.20, $this->module->displayName, 'NAVID TEST MANUAL', array(), 1, false, Context::getContext()->customer->secure_key);
 
                         try
                         {
@@ -183,4 +185,64 @@ class NetopiaIpnModuleFrontController extends ModuleFrontController
             print $e->getMessage();
         }
     }
+
+    /*
+    public function makeOrder() {
+        //
+        // Get Cart data,
+        //
+       $cart_id = $this->context->cart->id;
+       $customer_id = $this->context->customer->id;
+       $amount = (float)$this->context->cart->getOrderTotal(false, Cart::BOTH);
+
+       //
+       // Restore the context from the $cart_id & the $customer_id to process the validation properly.
+       //
+
+       Context::getContext()->cart = new Cart((int) $cart_id);
+       Context::getContext()->customer = new Customer((int) $customer_id);
+       Context::getContext()->currency = new Currency((int) Context::getContext()->cart->id_currency);
+       Context::getContext()->language = new Language((int) Context::getContext()->customer->id_lang);
+
+       $secure_key = Context::getContext()->customer->secure_key;
+
+       if ($this->isValidOrder() === true) {
+           $payment_status = Configuration::get('PS_OS_OUTOFSTOCK_UNPAID'); // Status of Order after Place Order & Befor payment
+           $message = null;
+       } else {
+           $payment_status = Configuration::get('PS_OS_ERROR');
+
+           //
+           // Add a message to explain why the order has not been validated
+           //
+
+           $message = $this->module->l('An error occurred while processing payment');
+       }
+
+       $module_name = $this->module->displayName;
+       $currency_id = (int) Context::getContext()->currency->id;
+
+       $this->module->validateOrder($cart_id, $payment_status, $amount, $module_name, $message, array(), $currency_id, false, $secure_key);
+
+       //
+       // Order have to be added Now
+       //
+   }
+
+   protected function isValidOrder()
+        {
+            //
+            // Add your checks right there
+            //
+
+            if($this->context->cart->id){
+                if($this->context->cart->OrderExists() == false){
+                    return true;
+                }
+            } else {
+                Tools::redirect($this->context->link->getPageLink('order'));
+                return false;
+            }
+        }
+    */
 }
